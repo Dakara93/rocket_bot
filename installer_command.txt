@@ -1,0 +1,2 @@
+pyinstaller --onefile --noconsole --icon=./icon.ico --add-data "icon.ico;." --add-data "settings.json;." --add-data "patterns.json;."  --clean main.py
+pyinstaller --onefile --noconsole --icon=./icon.ico --add-data "icon.ico;."  --clean main.py
