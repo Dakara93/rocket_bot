@@ -14,7 +14,7 @@ api_hash = "1fea3df04d97e0c8691f37236ba3593e"
 api_id = "12395584"
 
 ##### MUST BE CHANGED FOR PRODUCTION
-running_dev = 1
+running_dev = 0
 
 code = 0
 password = 0
@@ -152,6 +152,7 @@ def update_patterns(cmd):
         ui.n_pattern(n+1)
     elif(cmd == "del"):
         glob.patterns[index]['pattern'].pop(n)
+        ui.n_pattern(n-1)
     elif(cmd == "inc"):
         glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
         ui.n_pattern(n+1)
@@ -237,6 +238,7 @@ def show_data(selected = False):
 #------------ TG actions --------------------
 
 async def print_pattern(pattern,setting,message, n,m):
+
     await asyncio.sleep(setting['delay'])
     if setting['add_new']:
         await glob.client.send_message(message.peer_id,pattern[n])
@@ -250,7 +252,6 @@ async def print_pattern(pattern,setting,message, n,m):
 
 
 async def tg_monitor(loop):
-
 
     glob.client = TelegramClient('anon', api_id, api_hash,loop=loop)
     await glob.client.connect()
