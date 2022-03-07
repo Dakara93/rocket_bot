@@ -14,7 +14,7 @@ import ui
 
 api_hash = "1fea3df04d97e0c8691f37236ba3593e"
 api_id = "12395584"
-running_dev = 0
+running_dev = 1
 
 code = 0
 password = 0
@@ -117,9 +117,7 @@ async def sign_in():
 # ----------------- Data handling -----------------------
 
 def update_settings():
-    print( glob.current_name)
-    
-    
+
     index = next(i for i, x in enumerate(glob.settings) if x['name'] ==  glob.current_name)
     glob.settings[index].update(ui.get_settings()) 
 
@@ -176,8 +174,6 @@ def search_json(json_object, item,value):
 
 def show_data(selected):
     
-    print(glob.settings)
-    print(id(glob.settings))
     if type(selected) is int:
         n = selected 
     else :
@@ -225,11 +221,9 @@ async def tg_monitor(loop):
     @glob.client.on(events.NewMessage())
     async def normal_handler(event):
         
-        print("tg"+str(id(glob.settings)))
         setting = search_json(glob.settings,"command",event.message.message)
         if (setting and event.message.from_id.user_id == 1796705633):
             await glob.client.delete_messages(event.message.peer_id,event.message.id)
-            print(id(glob.settings))
             pattern = search_json(glob.patterns,"name",setting['name'])['pattern']
             message = await glob.client.send_message(event.message.peer_id,pattern[0])
             await print_pattern(pattern,setting,message,1,1)
