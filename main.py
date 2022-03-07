@@ -10,11 +10,9 @@ import glob
 import ui
 
 
-
-
 api_hash = "1fea3df04d97e0c8691f37236ba3593e"
 api_id = "12395584"
-running_dev = 1
+running_dev = 0
 
 code = 0
 password = 0
@@ -23,21 +21,6 @@ if(running_dev):
     base_path = "./"
 else:
     base_path = sys._MEIPASS
-
-
-
-
-
-
-
-    
-with open("./settings.json","r",encoding='utf-8') as settings_file:
-    glob.settings = json.load(settings_file)
-
-with open("./patterns.json","r",encoding='utf-8') as patterns_file:
-    glob.patterns = json.load(patterns_file)
-        
-       
 
 
 ### --- --------------  Structural functions --------------
@@ -54,8 +37,8 @@ def callbacks(funct):
 
 async def init():
     
-    
     glob.running = 1
+    load_data()
     glob.current_name = glob.settings[0]['name']
 
     ui.create_window()
@@ -67,8 +50,8 @@ async def init():
     else :
         ui.construct_advanced()
         ui.set_signed_state('signed_in')
-        ui.menu_var.set( glob.current_name)
-        show_data( glob.current_name)
+        ui.menu_var.set(glob.current_name)
+        show_data(glob.current_name)
 
 
 #--------------- user login -------------------------
@@ -127,39 +110,69 @@ def update_settings():
     
     show_data( glob.current_name)
 
-def update_patterns(n = False):
+
+
+
+def update_patterns(cmd):
 
 
     index = next(i for i, x in enumerate(glob.settings) if x['name'] ==  glob.current_name)
 
-    if(type(n) is int):
+    n = ui.n_pattern()
         
-        if(n ==-1):
-            glob.patterns[index]['pattern'].append("")
-        elif(n==-2):
-            glob.patterns[index]['pattern'].pop()
-            
-        elif(n >-1):
-            glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
+    if(cmd == "add"):
+        glob.patterns[index]['pattern'] = glob.patterns[index]['pattern'][0:n+1]+[""]+glob.patterns[index]['pattern'][n+1:]
 
-            #On full sequence
-        elif(n==-3):
-            glob.patterns.pop(index)
-            glob.settings.pop(index)
-            glob.current_name =glob.settings[0]['name']
-        elif(n==-4):
-            name = ui.get_new_name()
-            glob.settings.append({"name":name,"delay":1,"iter":1,"command":"cmd","add_new":0})
-            glob.patterns.append({"name":name,"pattern":[""]})
-            glob.current_name = name
+    elif(cmd == "del"):
+        glob.patterns[index]['pattern'].pop(n)
+        
+    elif(cmd == "inc"):
+        glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
+        ui.n_pattern(n+1)
+    elif(cmd == "dec"):
+        glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
+        ui.n_pattern(n-1)
+    elif(cmd =="save"):
+        glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
+        save_data()
+    elif(cmd == "restore"):
+        load_data()
+
+        #On full sequence
+    elif(cmd == "del_seq"):
+        glob.patterns.pop(index)
+        glob.settings.pop(index)
+        glob.current_name =glob.settings[0]['name']
+        save_data()
+    elif(cmd == "add_seq"):
+        name = ui.get_new_name()
+        glob.settings.append({"name":name,"delay":1,"iter":1,"command":"cmd","add_new":0})
+        glob.patterns.append({"name":name,"pattern":[""]})
+        glob.current_name = name
+        save_data()
+    elif(cmd == "ren_seq"):
+        name = ui.get_new_name()
+        glob.patterns[index]['name'] = name
+        glob.settings[index]['name'] = name
+        glob.current_name = name
+        save_data()
     
-    show_data( glob.current_name)
+    show_data(glob.current_name)
+
+def save_data():
 
     with open("./patterns.json","w",encoding = 'utf-8') as patterns_file:
         json.dump(glob.patterns,patterns_file,ensure_ascii=False)
 
     with open("./settings.json","w",encoding = 'utf-8') as settings_file:
         json.dump(glob.settings,settings_file,ensure_ascii=False)
+
+def load_data():
+    with open("./settings.json","r",encoding='utf-8') as settings_file:
+        glob.settings = json.load(settings_file)
+
+    with open("./patterns.json","r",encoding='utf-8') as patterns_file:
+        glob.patterns = json.load(patterns_file)
 
 
 def search_json(json_object, item,value):
@@ -172,13 +185,13 @@ def search_json(json_object, item,value):
 # ---------------------- Display datas --------------------------------
 
 
-def show_data(selected):
+def show_data(selected = False):
     
-    if type(selected) is int:
-        n = selected 
-    else :
-        n = 0
+    if(glob.current_name != selected and type(selected) == str):
         glob.current_name = selected
+        n = 0
+    else:
+        n = ui.n_pattern()
     
     names = []
     for obj in glob.settings:
@@ -190,9 +203,9 @@ def show_data(selected):
     patt_len = len(pattern)
     n = n%patt_len
     
-    ui.menu_var.set( glob.current_name)
-    
-    ui.display_data(setting,pattern[n],n,patt_len,names)
+    ui.menu_var.set(glob.current_name)
+    ui.n_pattern(n)
+    ui.display_data(setting,pattern[n],patt_len,names)
     
 
     
