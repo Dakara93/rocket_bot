@@ -12,7 +12,9 @@ import ui
 
 api_hash = "1fea3df04d97e0c8691f37236ba3593e"
 api_id = "12395584"
-running_dev = 0
+
+##### MUST BE CHANGED FOR PRODUCTION
+running_dev = 1
 
 code = 0
 password = 0
@@ -138,21 +140,18 @@ def update_settings():
     show_data( glob.current_name)
 
 
-
-
 def update_patterns(cmd):
-
 
     index = next(i for i, x in enumerate(glob.settings) if x['name'] ==  glob.current_name)
 
     n = ui.n_pattern()
         
     if(cmd == "add"):
+        glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
         glob.patterns[index]['pattern'] = glob.patterns[index]['pattern'][0:n+1]+[""]+glob.patterns[index]['pattern'][n+1:]
-
+        ui.n_pattern(n+1)
     elif(cmd == "del"):
         glob.patterns[index]['pattern'].pop(n)
-        
     elif(cmd == "inc"):
         glob.patterns[index]['pattern'][n] = ui.get_current_pattern()
         ui.n_pattern(n+1)

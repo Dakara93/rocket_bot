@@ -1,6 +1,6 @@
 import tkinter as tk
 import os,sys
-from tkinter import N, OptionMenu,IntVar,_setit,StringVar,messagebox,Toplevel
+from tkinter import INSERT, N, OptionMenu,IntVar,_setit,StringVar,messagebox,DISABLED,NORMAL
 from pystray import MenuItem
 import pystray
 import glob
@@ -11,6 +11,7 @@ from main import base_path, callbacks, quitt,sign_in,log_out,show_data,update_pa
 TITLE = 'Rocket bot'
 SIZE = '482x300'
 root = tk.Tk()
+
 
 n = 0
 
@@ -47,6 +48,21 @@ def create_window():
 
 def alert(message):
     messagebox.showinfo('', message,master=root)
+
+def cursor_pos(event):
+    
+    try:
+        if(root.focus_get().winfo_name()=="!text"):
+            pos = root.pattern_entry.index(INSERT)
+            line = pos[0]
+            col = pos[2:]
+            root.pos_label.configure(text="("+line+","+col+")")
+            
+    except:
+        return
+
+root.bind('<Key>',cursor_pos)
+root.bind("<Button-1>", cursor_pos)
 
 def hide_window():
     root.withdraw()
@@ -100,15 +116,31 @@ def get_sign_value():
 
 def construct_advanced():
     
-    
     global radio_var, menu_var
-    
-    n = 0
 
     radio_var = IntVar()
     radio_var.set(0)
     menu_var = StringVar()
     menu_var.set(0)
+
+    vars = ["Loading"]
+
+    #Upper options
+    root.dropdown = OptionMenu(root,menu_var,*vars,command= show_data)
+    root.dropdown.config(width=18)
+    root.dropdown.grid(row=1,columnspan = 2, padx=(1,1))
+    root.button_del = tk.Button(root, text='Delete',
+                                            command=lambda: update_patterns('del_seq'))
+    root.button_del.grid(row=1, column=2,sticky=tk.EW,padx = (0,1))
+    root.button_add_seq = tk.Button(root, text='Rename',
+                                            command=lambda: update_patterns('ren_seq'))
+    root.button_add_seq.grid(row=1, column=5,sticky=tk.EW)
+    root.button_add_seq = tk.Button(root, text='Create new',
+                                            command=lambda: update_patterns('add_seq'))
+    root.button_add_seq.grid(row=1, column=4,sticky=tk.EW,padx=(2,1))
+    root.name_entry_seq = tk.Entry(root,width=10)
+    root.name_entry_seq.grid(row=1, column=3, sticky=tk.EW)
+    root.name_entry_seq.insert(0,"Name")
 
     #Settings part
 
@@ -133,57 +165,53 @@ def construct_advanced():
                   command= update_settings)
     root.radio_new.grid(row=3, column=4, sticky=tk.EW)
 
-    vars = ["Loading"]
-
     #Pattern part
-    root.dropdown = OptionMenu(root,menu_var,*vars,command= show_data)
-    root.dropdown.config(width=18)
-    root.dropdown.grid(row=1, columnspan = 2, padx=(1,1))
 
-    root.button_del = tk.Button(root, text='Delete',
-                                            command=lambda: update_patterns('del_seq'))
-    root.button_del.grid(row=1, column=2,sticky=tk.EW,padx = (0,1))
-
-    root.button_add_seq = tk.Button(root, text='Rename',
-                                            command=lambda: update_patterns('ren_seq'))
-    root.button_add_seq.grid(row=1, column=5,sticky=tk.EW)
-    root.button_add_seq = tk.Button(root, text='Create new',
-                                            command=lambda: update_patterns('add_seq'))
-    root.button_add_seq.grid(row=1, column=4,sticky=tk.EW,padx=(2,1))
-    
-    root.name_entry_seq = tk.Entry(root,width=10)
-    root.name_entry_seq.grid(row=1, column=3, sticky=tk.EW)
-    root.name_entry_seq.insert(0,"Name")
     root.pattern_label = tk.Label(root, text='Pattern : / ')
-    root.pattern_label.grid(row=3, columnspan=2, sticky=tk.EW)
+    root.pattern_label.grid(row=3, column=0, sticky=tk.W,padx=(5,0))
     root.pattern_entry = tk.Text(root,width=18,height=10)
-    root.pattern_entry.grid(row=4, columnspan=2)
-
+    root.pattern_entry.grid(row=4,rowspan=2, columnspan=2)
+    
     root.button_minus = tk.Button(root, text='<--',
                                             command=lambda: update_patterns('dec'))
-    root.button_minus.grid(row=5, column=0)
-
+    root.button_minus.grid(row=6, column=0)
     root.button_plus = tk.Button(root, text='-->',
                                             command=lambda: update_patterns('inc'))
-    root.button_plus.grid(row=5, column=1)
-
+    root.button_plus.grid(row=6, column=1)
     root.button_add = tk.Button(root, text='Add pattern',
                                             command=lambda: update_patterns('add'))
     root.button_add.grid(row=4, column=2)
-
     root.button_del = tk.Button(root, text='Delete current',
                                             command=lambda: update_patterns('del'))
     root.button_del.grid(row=4, column=3)
-
     root.button_save = tk.Button(root, text='Save changes',
                                             command=lambda: update_patterns('save'))
     root.button_save.grid(row=4, column=4)
-
     root.button_save = tk.Button(root, text='Restore',
                                             command=lambda: update_patterns('restore'))
     root.button_save.grid(row=4, column=5,sticky=tk.EW)
 
+    root.speed_label = tk.Label(root, text='Insert space :')
+    root.speed_label.grid(row=5, column=2)
 
+    root.button_thin = tk.Button(root, text='Thin',
+                                            command=lambda: insert_space(chr(32)))
+    #root.button_thin.grid(row=5, column=3,sticky=tk.EW)
+    root.button_small = tk.Button(root, text='Small',
+                                            command=lambda: insert_space(chr(5760)))
+    #root.button_small.grid(row=5, column=4,sticky=tk.EW)
+    root.button_big = tk.Button(root, text='Big',
+                                            command=lambda: insert_space("ㅤ"))
+    root.button_big.grid(row=5, column=3,sticky=tk.EW)
+
+    root.pos_label = tk.Label(root,text="",width =6)
+    root.pos_label.grid(row=3, column=1,sticky=tk.E)
+
+
+def insert_space(char):
+
+    root.pattern_entry.insert(tk.INSERT,char)
+    cursor_pos(1)
 
 def get_settings():
 
@@ -230,3 +258,10 @@ def display_data(setting,pattern,patt_len,names):
 
     root.pattern_entry.delete("1.0","end")
     root.pattern_entry.insert('1.0',pattern)
+
+    if(patt_len ==1):
+        root.button_del.configure(state = DISABLED)
+    else:
+        root.button_del.configure(state=NORMAL)
+
+    cursor_pos(1)

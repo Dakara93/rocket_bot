@@ -1,1 +1,1 @@
-[{"delay": 0.03, "command": "p!", "iter": 8, "add_new": 0, "name": "Moon"}, {"delay": 0.5, "command": "lfg!", "iter": 1, "name": "LFG", "add_new": 1}, {"name": "Seq", "delay": 1.0, "iter": 1, "command": "cmd", "add_new": 0}]
+[{"delay": 0.03, "command": "p!", "iter": 8, "add_new": 0, "name": "Moon"}, {"delay": 0.5, "command": "lfg!", "iter": 1, "name": "LFG", "add_new": 1}, {"name": "SEQ", "delay": 0.01, "iter": 2, "command": "cmd", "add_new": 0}]
