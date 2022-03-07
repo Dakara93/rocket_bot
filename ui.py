@@ -1,6 +1,6 @@
 import tkinter as tk
 import os,sys
-from tkinter import N, OptionMenu,IntVar,_setit,StringVar
+from tkinter import N, OptionMenu,IntVar,_setit,StringVar,messagebox,Toplevel
 from pystray import MenuItem
 import pystray
 import glob
@@ -28,6 +28,7 @@ def create_window():
     root.title(TITLE)
     root.geometry(SIZE)
     root.protocol("WM_DELETE_WINDOW",  quitt)
+    
 
 
     # Signing in row; the entry supports phone and bot token
@@ -44,7 +45,8 @@ def create_window():
     menu = (MenuItem('Close', lambda:os._exit(1)),MenuItem("Show",show_window))
     icon = pystray.Icon('name',image,"Tg bot",menu)       
 
-
+def alert(message):
+    messagebox.showinfo('', message,master=root)
 
 def hide_window():
     root.withdraw()

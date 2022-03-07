@@ -46,7 +46,7 @@ async def init():
     glob.connected = await glob.client.is_user_authorized()
     if(glob.connected == False):
         # User is not logged in, configure the button to ask them to login
-        ui.set_signed_state('Enter phone/token:')
+        ui.set_signed_state('Enter Phone/token:')
     else :
         ui.construct_advanced()
         ui.set_signed_state('signed_in')
@@ -77,25 +77,52 @@ async def sign_in():
             await glob.client.sign_in(code=value)
         except SessionPasswordNeededError:
             ui.set_signed_state('Password:')
-            
             password = True
             code = None
             return
+        except:
+            ui.alert("Code refused.")
+            ui.set_signed_state("Received code :")
+        else :
+            ui.set_signed_state('signed_in')
+            ui.construct_advanced()
+            glob.connected = True
+            show_data(glob.current_name)
+    
     elif ':' in value:
-        await glob.client.sign_in(bot_token=value)
-        ui.set_signed_state('signed_in')
+        try:
+            await glob.client.sign_in(bot_token=value)
+        except:
+            ui.alert("Token refused.")
+            ui.set_signed_state('Enter Phone/token:')
+        else:
+            ui.set_signed_state('signed_in')
+            ui.construct_advanced()
+            glob.connected = True
+            show_data(glob.current_name) 
+    
     elif password:
-        await glob.client.sign_in(password=value)
-            
+        try:
+            await glob.client.sign_in(password=value)
+        except:
+            ui.alert("Password refused.")
+            ui.set_signed_state('Password:')
+        else:
+            ui.set_signed_state('signed_in')
+            ui.construct_advanced()
+            glob.connected = True
+            show_data(glob.current_name)
+   
     else:
-        code = await glob.client.send_code_request(value)
-        ui.set_signed_state("SMS code :")
-        return
+        try:
+            code = await glob.client.send_code_request(value)
+        except:
+            ui.alert("Request refused.")
+            ui.set_signed_state('Enter Phone/token:')
+        else:
+            ui.set_signed_state("Received code :")
 
-    ui.set_signed_state('signed_in')
-    ui.construct_advanced()
-    glob.connected = True
-    show_data(glob.current_name)
+
 
 # ----------------- Data handling -----------------------
 
@@ -192,7 +219,6 @@ def show_data(selected = False):
         n = 0
     else:
         n = ui.n_pattern()
-    
     names = []
     for obj in glob.settings:
         names.append(obj['name'])
