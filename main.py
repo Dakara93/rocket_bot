@@ -51,6 +51,7 @@ async def init():
         ui.set_signed_state('Enter Phone/token:')
     else :
         ui.construct_advanced()
+        glob.user = await glob.client.get_me()
         ui.set_signed_state('signed_in')
         ui.menu_var.set(glob.current_name)
         show_data(glob.current_name)
@@ -89,6 +90,7 @@ async def sign_in():
             ui.set_signed_state('signed_in')
             ui.construct_advanced()
             glob.connected = True
+            glob.user = await glob.client.get_me()
             show_data(glob.current_name)
     
     elif ':' in value:
@@ -100,6 +102,7 @@ async def sign_in():
         else:
             ui.set_signed_state('signed_in')
             ui.construct_advanced()
+            glob.user = await glob.client.get_me()
             glob.connected = True
             show_data(glob.current_name) 
     
@@ -112,6 +115,7 @@ async def sign_in():
         else:
             ui.set_signed_state('signed_in')
             ui.construct_advanced()
+            glob.user = await glob.client.get_me()
             glob.connected = True
             show_data(glob.current_name)
    
@@ -261,7 +265,8 @@ async def tg_monitor(loop):
     async def normal_handler(event):
         
         setting = search_json(glob.settings,"command",event.message.message)
-        if (setting and event.message.from_id.user_id == 1796705633):
+        
+        if (setting and event.message.from_id.user_id == glob.user.id):
             await glob.client.delete_messages(event.message.peer_id,event.message.id)
             pattern = search_json(glob.patterns,"name",setting['name'])['pattern']
             message = await glob.client.send_message(event.message.peer_id,pattern[0])
